@@ -1,0 +1,2 @@
+# .env - should be ignored but I let it here for the example
+/node_modules
