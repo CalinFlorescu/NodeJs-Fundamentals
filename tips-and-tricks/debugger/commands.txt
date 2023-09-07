@@ -1,0 +1,9 @@
+Debugger Commands
+
+cont, c - continue execution
+next, n - next step
+repl - evaluate values remotely
+
+node inspect <script_file>
+
+chrome://inspect -> Open dedicated DevTools for Node

@@ -1,48 +1,29 @@
-const dotenv = require('dotenv');
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require('express')
+const bodyParser = require('body-parser')
+const swaggerUi = require('swagger-ui-express')
 
-const dbConnect = require('./config/db');
-const logger = require('./src/utils/logger');
-const { BaseError } = require('./src/utils/errors');
+const apiDoc = require('./docs/apidoc')
+
 const {
     userRoutes,
     authRoutes,
-} = require('./src/routes');
+} = require('./src/routes')
 
 const {
-    isOperationalError,
     logErrorMiddleware,
     returnErrorMiddleware,
-} = require('./src/middlewares/errors');
+} = require('./src/middlewares/errors')
 
-dotenv.config();
+const app = express()
 
-const { PORT } = process.env;
+app.use(bodyParser.json())
 
-dbConnect();
-const app = express();
+app.use(userRoutes)
+app.use(authRoutes)
 
-app.use(bodyParser.json());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiDoc))
 
-app.use(userRoutes);
-app.use(authRoutes);
+app.use(logErrorMiddleware)
+app.use(returnErrorMiddleware)
 
-app.use(logErrorMiddleware);
-app.use(returnErrorMiddleware);
-
-process.on('uncaughtException', (error) => {
-    logger.error(error)
-    
-    if (!isOperationalError(error)) {
-        process.exit(1)
-    }
-})
-
-process.on('unhandledRejection', (error) => {
-    throw new BaseError(error.message, 500)
-})
-
-app.listen(PORT, () => {
-    logger.info(`Server is running on port ${PORT}`);
-});
+module.exports = app
